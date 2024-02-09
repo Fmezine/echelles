@@ -96,7 +96,7 @@
                 })
             dim.append("g").attr("transform", (d,i)=>`translate(${widthLibTxt},0)`).attr('id',(d,i)=>'axisY'+i)
                 .each((d,i)=>{
-                    d3.select('#axisY'+i).call(d3.axisLeft(d.scY));
+                    d3.select('#axisY'+i).call(d3.axisLeft(d.scY).tickFormat(d3.format("d")));
                 })
     }
 
