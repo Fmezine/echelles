@@ -19,7 +19,7 @@
         //urlData = "http://localhost/samszo/HDR/docs/assets/data/complexityFrequency.json",
         urlData = "https://raw.githubusercontent.com/Fmezine/echelles/main/Base%20de%20donnes%20de%20mon%20projet%20%20-%20biotronik.csv",
         width = 600, height=600, widthLibTxt=120, svg,  
-        valX='FEMME',valGroupe='N PATIENTS',valY='HOMMES',
+        valX='FEMME',valGroupe='ANNEE',valY='HOMMES',
         bandY,
         interpolates = false;
         /*{
@@ -45,8 +45,8 @@
         //cf. https://observablehq.com/@d3/d3-scaleband
         bandY = d3.scaleBand(data.map(d=>d[0]), [0, height]).paddingInner(0.2).paddingOuter(0.2);
         data = data.map(d=>{
-                    let extX = d3.extent(d[1], d=>d[valX]),
-                        extY = d3.extent(d[1], d=>d[valY]),
+                    let extX = d3.extent(d[1], d=>Number(d[valX])),
+                        extY = d3.extent(d[1], d=>Number(d[valY])),
                         o = {'vals':d[1],
                         'extX':[1,extX[1]],                        
                         //'scX':d3.scaleSymlog().domain(extX).range([widthLibTxt, width-widthLibTxt]),
