@@ -42,8 +42,8 @@
     function setData(rs){
         data = [];
         rs.forEach(d=>{
-            data.push({'genre':'HOMME','nbTot':d['N PATIENTS'],'nb':d.HOMME, 'ANNEE':d.ANNEE};
-            data.push({'genre':'FEMME','nbTot':d['N PATIENTS'],'nb':d.FEMME, 'ANNEE':d.ANNEE};
+            data.push({'genre':'HOMME','nbTot':d['N PATIENTS'],'nb':d.HOMME, 'ANNEE':d.ANNEE});
+            data.push({'genre':'FEMME','nbTot':d['N PATIENTS'],'nb':d.FEMME, 'ANNEE':d.ANNEE});
         })
         data = Array.from(d3.group(rs, d => d[valGroupe]));
         //création de l'échelle par bandes
