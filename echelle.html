@@ -19,7 +19,7 @@
         //urlData = "http://localhost/samszo/HDR/docs/assets/data/complexityFrequency.json",
         urlData = "https://raw.githubusercontent.com/Fmezine/echelles/main/Base%20de%20donnes%20de%20mon%20projet%20%20-%20biotronik.csv",
         width = 600, height=600, widthLibTxt=120, svg,  
-        valX='FEMME',valGroupe='ANNEE',valY='HOMMES',
+        valX='nb',valGroupe='genre',valY='ANNEE',
         bandY,
         interpolates = false;
         /*{
@@ -40,6 +40,11 @@
     })
 
     function setData(rs){
+        data = [];
+        rs.forEach(d=>{
+            data.push({'genre':'HOMME','nbTot':d['N PATIENTS'],'nb':d.HOMME, 'ANNEE':d.ANNEE};
+            data.push({'genre':'FEMME','nbTot':d['N PATIENTS'],'nb':d.FEMME, 'ANNEE':d.ANNEE};
+        })
         data = Array.from(d3.group(rs, d => d[valGroupe]));
         //création de l'échelle par bandes
         //cf. https://observablehq.com/@d3/d3-scaleband
