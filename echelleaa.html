@@ -50,14 +50,20 @@
         setAxis(data);
     })
 
+    
     function setData(rs){
-        data = Array.from(d3.group(rs, d => d[valGroupe]));
+        data = [];
+        rs.forEach(d=>{
+            data.push({'genre':'HOMME','nbTot':d['N PATIENTS'],'nb':d.HOMME, 'ANNEE':d.ANNEE});
+            data.push({'genre':'FEMME','nbTot':d['N PATIENTS'],'nb':d.FEMME, 'ANNEE':d.ANNEE});
+        })
+        data = Array.from(d3.group(data, d => d[valGroupe]));
         //création de l'échelle par bandes
         //cf. https://observablehq.com/@d3/d3-scaleband
         bandY = d3.scaleBand(data.map(d=>d[0]), [0, height]).paddingInner(0.2).paddingOuter(0.2);
         data = data.map(d=>{
-                    let extX = d3.extent(d[1], d=>d[valX]),
-                        extY = d3.extent(d[1], d=>d[valY]),
+                    let extX = d3.extent(d[1], d=>Number(d[valX])),
+                        extY = d3.extent(d[1], d=>Number(d[valY])),
                         o = {'vals':d[1],
                         'extX':[1,extX[1]],                        
                         //'scX':d3.scaleSymlog().domain(extX).range([widthLibTxt, width-widthLibTxt]),
@@ -65,8 +71,7 @@
                         //'scX':d3.scaleLog().domain(extX).range([widthLibTxt, width-widthLibTxt]),
                         //'scY':d3.scaleLog().domain(extY).range([0, bandY.bandwidth()])                        
                         'scX':d3.scaleLinear().domain(extX).range([widthLibTxt, width-widthLibTxt]),
-                        'scY':d3.scaleLinear().domain(extY).range([0, bandY.bandwidth()]),
-                        'scColor':d3.scaleSequentialLog(extX, d3.interpolatePlasma)
+                        'scY':d3.scaleLinear().domain(extY).range([0, bandY.bandwidth()])
                         };
                         o[valGroupe]=d[0];
                     return o;
