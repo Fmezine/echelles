@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+     <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,25 +6,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Echelles statistiques</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    }
+    <style>
+        #toolTip{
+            position: absolute;
+            display: none;
+            background-color: white;
+        }
         .cercle{
             cursor: pointer;
         }
+    </style>
 </head>
 <body>
 <div id="resultat"></div>
+<div id="toolTip"></div>
 
 </body>
 <script type="module">
     import {posiColor} from './modules/posiColor.js';
 
     let data, 
-        //urlData = "http://localhost/samszo/HDR/docs/assets/data/complexityFrequency.json",
         urlData = "https://raw.githubusercontent.com/Fmezine/echelles/main/Base%20de%20donnes%20de%20mon%20projet%20%20-%20biotronik.csv",
         width = 600, height=600, widthLibTxt=120, svg,  
         valX='nb',valGroupe='REGION',valY='ANNEE', valLibCercle = 'N_PATIENTS',
         bandY,
-        interpolates = false;
+        interpolates = false,
+        toolTip = d3.select("#toolTip");
         /*{
                 'Existence':d3.interpolateViridis,
                 'Physique':d3.interpolatePlasma,
@@ -43,18 +50,13 @@
     })
 
     function setData(rs){
-        data = [];
-        rs.forEach(d=>{
-            data.push({'genre':'HOMME','nbTot':d['N PATIENTS'],'nb':d.HOMME, 'ANNEE':d.ANNEE});
-            data.push({'genre':'FEMME','nbTot':d['N PATIENTS'],'nb':d.FEMME, 'ANNEE':d.ANNEE});
-        })
-        data = Array.from(d3.group(data, d => d[valGroupe]));
+        data = Array.from(d3.group(rs, d => d[valGroupe]));
         //création de l'échelle par bandes
         //cf. https://observablehq.com/@d3/d3-scaleband
-        bandY = d3.scaleBand(data.map(d=>d[0]), [0, height]).paddingInner(0.2).paddingOuter(0.2);
+        bandY = d3.scaleBand(data.map(d=>d[0]), [0, height]).paddingInner(0.5).paddingOuter(0.5);
         data = data.map(d=>{
-                    let extX = d3.extent(d[1], d=>Number(d[valX])),
-                        extY = d3.extent(d[1], d=>Number(d[valY])),
+                    let extX = d3.extent(d[1], d=>d[valX]),
+                        extY = d3.extent(d[1], d=>d[valY]),
                         o = {'vals':d[1],
                         'extX':[1,extX[1]],                        
                         //'scX':d3.scaleSymlog().domain(extX).range([widthLibTxt, width-widthLibTxt]),
@@ -62,7 +64,8 @@
                         //'scX':d3.scaleLog().domain(extX).range([widthLibTxt, width-widthLibTxt]),
                         //'scY':d3.scaleLog().domain(extY).range([0, bandY.bandwidth()])                        
                         'scX':d3.scaleLinear().domain(extX).range([widthLibTxt, width-widthLibTxt]),
-                        'scY':d3.scaleLinear().domain(extY).range([0, bandY.bandwidth()])
+                        'scY':d3.scaleLinear().domain(extY).range([0, bandY.bandwidth()]),
+                        'scColor':d3.scaleSequentialLog(extX, d3.interpolatePlasma)
                         };
                         o[valGroupe]=d[0];
                     return o;
@@ -88,21 +91,24 @@
                 .attr("height", height)
                 .attr("style", "max-width: 100%; height: auto;")
                 .style("font", "14px sans-serif"),
-            dim = svg.selectAll('g').data(data).enter().append("g")
+            groupe = svg.selectAll('g').data(data).enter().append("g")
                 .attr("transform",(d,i)=>`translate(0,${bandY(d[valGroupe])})`);
-            dim.append("text").text(d=>{
+            groupe.append("text").text(d=>{
                 return d[valGroupe]
             })
-            dim.append("g").attr("transform", (d,i)=>`translate(widthLibTxt,0)`).attr('id',(d,i)=>'axisX'+i)
+            //ajoute la légende des axes
+            groupe.append("text").text(valX).attr("transform", d=>`translate(${widthLibTxt},-20)`).attr("font-size","smaller");
+            groupe.append("text").text(valY).attr("transform", d=>`translate(${widthLibTxt},${bandY.bandwidth()+14})`).attr("font-size","smaller");
+            //ajoute les axes
+            groupe.append("g").attr("transform", (d,i)=>`translate(0,0)`).attr('id',(d,i)=>'axisX'+i)
                 .each((d,i)=>{
                     d3.select('#axisX'+i).call(d3.axisTop(d.scX));
                 })
-            dim.append("g").attr("transform", (d,i)=>`translate(${widthLibTxt},0)`).attr('id',(d,i)=>'axisY'+i)
+            groupe.append("g").attr("transform", (d,i)=>`translate(${widthLibTxt},0)`).attr('id',(d,i)=>'axisY'+i)
                 .each((d,i)=>{
-                    d3.select('#axisY'+i).call(d3.axisLeft(d.scY).tickFormat(d3.format("d")));
+                    d3.select('#axisY'+i).call(d3.axisLeft(d.scY));
                 })
-    }
-let cercles = groupe.selectAll('.cercle').data(d=>d.vals.map(m=>{
+            let cercles = groupe.selectAll('.cercle').data(d=>d.vals.map(m=>{
                     m.sclX=d.scX;
                     m.sclY=d.scY;
                     m.sclC=d.scColor;
@@ -132,7 +138,6 @@ let cercles = groupe.selectAll('.cercle').data(d=>d.vals.map(m=>{
     function hideToolTip(e,d){
         toolTip.style('display','none');
     }
-
 
 </script>
 </html>
